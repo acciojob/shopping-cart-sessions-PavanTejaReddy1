@@ -10,23 +10,27 @@ const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
 const clearCartBtn = document.getElementById("clear-cart-btn");
 
+if (!sessionStorage.getItem("cart") && window.name) {
+  sessionStorage.setItem("cart", window.name);
+}
+
 function getCart() {
   const cart = sessionStorage.getItem("cart");
   return cart ? JSON.parse(cart) : [];
 }
 
 function saveCart(cart) {
-  sessionStorage.setItem("cart", JSON.stringify(cart));
+  const data = JSON.stringify(cart);
+  sessionStorage.setItem("cart", data);
+  window.name = data;
 }
 
 function renderProducts() {
   products.forEach((product) => {
     const li = document.createElement("li");
     const btn = document.createElement("button");
-
     btn.textContent = "Add to Cart";
-    btn.addEventListener("click", () => addToCart(product.id));
-
+    btn.onclick = () => addToCart(product.id);
     li.textContent = `${product.name} - $${product.price} `;
     li.appendChild(btn);
     productList.appendChild(li);
@@ -35,9 +39,7 @@ function renderProducts() {
 
 function renderCart() {
   cartList.innerHTML = "";
-  const cart = getCart();
-
-  cart.forEach((item) => {
+  getCart().forEach((item) => {
     const li = document.createElement("li");
     li.textContent = `${item.name} - $${item.price}`;
     cartList.appendChild(li);
@@ -45,25 +47,20 @@ function renderCart() {
 }
 
 function addToCart(productId) {
-  const cart = getCart(); // read existing cart
+  const cart = getCart();
   const product = products.find((p) => p.id === productId);
-
-  cart.push({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-  });
-
+  cart.push({ id: product.id, name: product.name, price: product.price });
   saveCart(cart);
   renderCart();
 }
 
 function clearCart() {
   sessionStorage.removeItem("cart");
+  window.name = "";
   cartList.innerHTML = "";
 }
 
-clearCartBtn.addEventListener("click", clearCart);
+clearCartBtn.onclick = clearCart;
 
 renderProducts();
 renderCart();

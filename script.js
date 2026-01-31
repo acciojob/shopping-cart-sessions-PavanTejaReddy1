@@ -54,15 +54,22 @@ function renderCart() {
 
 // -------- Add to Cart --------
 function addToCart(productId) {
-  const cart = getCartFromSession();
-  const product = products.find((p) => p.id === productId);
+  const existingCart = sessionStorage.getItem("cart");
+  const cart = existingCart ? JSON.parse(existingCart) : [];
 
-  if (product) {
-    cart.push(product);
-    saveCartToSession(cart);
-    renderCart();
-  }
+  const product = products.find((p) => p.id === productId);
+  if (!product) return;
+
+  cart.push({
+    id: product.id,
+    name: product.name,
+    price: product.price
+  });
+
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
 }
+
 
 // -------- Clear Cart --------
 function clearCart() {
